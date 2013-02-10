@@ -15,7 +15,7 @@ class Hilos(Thread):
         
     def run(self):
         while 1:
-            msj = self.socket2.recv(1024)
+            msj = self.socket2.recv(8)
             comando = desempaqueto(msj)
             if comando[0] == "EX":
                 self.socket2.close()
@@ -23,6 +23,10 @@ class Hilos(Thread):
                 break
             if comando[0] == "GR":
                 accion_grises()
+            if comando[0] == "PR":
+                accion_promedio()
+            if comando[0] == "OR":
+                accion_original()
             if comando[0] == "UM":
                 accion_umbral(comando[1])
             print "Cliente IP no. " + self.datos + " cambia a " + str(comando[0])
@@ -31,7 +35,6 @@ def desempaqueto(valores):
     paquete = struct.Struct('2s f')
     obtener_valores = paquete.unpack(valores)
     print "\n"
-    print "Originales: ", valores
     print "Cadena: ", paquete.format
     print "Uso: ", paquete.size
     print "Desempaquetado: ", obtener_valores
@@ -146,7 +149,7 @@ def accion_original():
 
 def accion_promedio():
     label.destroy()
-    imagen_grises = cambiar_agrises(imagen_original)
+    imagen_grises = cambiar_agrises(imagen_original.convert("RGB"))
     imagen_prom = cambiar_promedio(imagen_grises.convert("RGB"))
     poner_imagen(imagen_prom)
 
@@ -160,7 +163,7 @@ def accion_umbral(umbral_valor):
 def main():
     socket1 = socket.socket()
     socket1.bind(("localhost", 6699))
-    print "Haz iniciado satisfactoriamente el chat\nmuestro los mensajes."
+    print "Haz iniciado satisfactoriamente el editor de imagenes colaborativo\nmuestro los mensajes."
     socket1.listen(1)
     clientes = []
     
@@ -172,19 +175,20 @@ def main():
     global imagen_original
     imagen_original = obtener_original(path_imagen_original)
     poner_imagen(imagen_original)
+    numero = int(raw_input("Cuantos van a colaborar: "))
     
     while (1):
-        #print "1) Acepta conexiones"
+        print "1) Acepta conexiones"
         socket2, direccion = socket1.accept()
-        #print "2) Mensaje conectado"
+        print "2) Mensaje conectado"
         print direccion[0] + " conectado."
-        #print "3) Genera hilos"
+        print "3) Genera hilos"
         hilo = Hilos(socket2, direccion)
-        #print "4) Empieza hilo"
+        print "4) Empieza hilo"
         hilo.start()
-        #print "5) Agrega cliente"
+        print "5) Agrega cliente"
         clientes.append(hilo)
-        if len(clientes) == 2:
+        if len(clientes) == numero:
             break
         else:
             print "Esperando cliente . . . . "
