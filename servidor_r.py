@@ -17,22 +17,24 @@ class Hilos(Thread):
         while 1:
             msj = self.socket2.recv(8)
             comando = desempaqueto(msj)
-            if comando[0] == "EX":
+            if comando[0] == "EXIT":
                 self.socket2.close()
                 print self.datos + " se desconecto"
                 break
-            if comando[0] == "GR":
+            if comando[0] == "GRIS":
                 accion_grises()
-            if comando[0] == "PR":
+            if comando[0] == "PROM":
                 accion_promedio()
-            if comando[0] == "OR":
+            if comando[0] == "ORIG":
                 accion_original()
-            if comando[0] == "UM":
-                accion_umbral(comando[1])
+            if comando[0][0] == "U" and comando[0][1] == "M":
+                valor = comando[0][2] + "." +comando[0][3]
+                accion_umbral(float(valor))
             print "Cliente IP no. " + self.datos + " cambia a " + str(comando[0])
 
 def desempaqueto(valores):
-    paquete = struct.Struct('2s f')
+    print valores
+    paquete = struct.Struct('4s')
     obtener_valores = paquete.unpack(valores)
     print "\n"
     print "Cadena: ", paquete.format
