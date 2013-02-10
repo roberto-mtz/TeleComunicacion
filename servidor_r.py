@@ -4,6 +4,8 @@ from Tkinter import *
 from PIL import Image, ImageTk
 from math import floor
 import socket
+import binascii
+import struct
 
 class Hilos(Thread):
     def __init__(self, socket2, direccion):
@@ -14,15 +16,27 @@ class Hilos(Thread):
     def run(self):
         while 1:
             msj = self.socket2.recv(1024)
-            if msj == "salir":
+            comando = desempaqueto(msj)
+            if comando[0] == "EX":
                 self.socket2.close()
                 print self.datos + " se desconecto"
                 break
-            if msj == "grises":
+            if comando[0] == "GR":
                 accion_grises()
-            if msj == "umbral":
-                accion_umbral()
-            print self.datos + " dijo: " + msj
+            if comando[0] == "UM":
+                accion_umbral(comando[1])
+            print "Cliente IP no. " + self.datos + " cambia a " + str(comando[0])
+
+def desempaqueto(valores):
+    paquete = struct.Struct('2s f')
+    obtener_valores = paquete.unpack(valores)
+    print "\n"
+    print "Originales: ", valores
+    print "Cadena: ", paquete.format
+    print "Uso: ", paquete.size
+    print "Desempaquetado: ", obtener_valores
+    print "\n"
+    return obtener_valores
 
 def poner_imagen(image):
     photo = ImageTk.PhotoImage(image)
@@ -136,12 +150,12 @@ def accion_promedio():
     imagen_prom = cambiar_promedio(imagen_grises.convert("RGB"))
     poner_imagen(imagen_prom)
 
-def accion_umbral():
+def accion_umbral(umbral_valor):
     label.destroy()
-    umbral_valor = 0.8
     imagen_grises = cambiar_agrises(imagen_original.convert("RGB"))
     imagen_umb = cambiar_umbral(imagen_grises.convert("RGB"), umbral_valor)
     poner_imagen(imagen_umb)
+
 
 def main():
     socket1 = socket.socket()
@@ -173,7 +187,7 @@ def main():
         if len(clientes) == 2:
             break
         else:
-            print "Esperando cliente"
+            print "Esperando cliente . . . . "
 
     print "6) Actualizo GUI"
     root.mainloop(0)
