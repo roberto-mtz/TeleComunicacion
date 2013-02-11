@@ -15,7 +15,7 @@ class Hilos(Thread):
         
     def run(self):
         while 1:
-            msj = self.socket2.recv(8)
+            msj, addr = self.socket2.recvfrom(4)
             comando = desempaqueto(msj)
             if comando[0] == "EXIT":
                 self.socket2.close()
@@ -163,10 +163,10 @@ def accion_umbral(umbral_valor):
 
 
 def main():
-    socket1 = socket.socket()
+    socket1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     socket1.bind(("localhost", 6699))
     print "Haz iniciado satisfactoriamente el editor de imagenes colaborativo\nmuestro los mensajes."
-    socket1.listen(1)
+    #socket1.listen(1)
     clientes = []
     
     root = Tk()
@@ -181,11 +181,11 @@ def main():
     
     while (1):
         print "1) Acepta conexiones"
-        socket2, direccion = socket1.accept()
+        socket2, direccion = socket1.recvfrom(4)
         print "2) Mensaje conectado"
         print direccion[0] + " conectado."
         print "3) Genera hilos"
-        hilo = Hilos(socket2, direccion)
+        hilo = Hilos(socket1, direccion)
         print "4) Empieza hilo"
         hilo.start()
         print "5) Agrega cliente"

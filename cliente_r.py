@@ -4,10 +4,12 @@ import socket
 import binascii
 import struct
 
-envio = socket.socket() #creo un socket
-envio.connect(("localhost", 6699))  #conecto
+envio = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) #creo un socket
 paquete = struct.Struct('4s')
-
+texto = "INIT"
+valores = (texto)
+empaquetado = paquete.pack(valores)
+envio.sendto(empaquetado, ("localhost", 6699))
 valor_slider = 0
 
 def ventana():
@@ -32,7 +34,7 @@ def boton_grises():
     print "Uso: ", paquete.size
     print "Empaquetado: ", binascii.hexlify(empaquetado)
     print "\n"
-    envio.send(empaquetado)
+    envio.sendto(empaquetado, ("localhost", 6699))
 
 def boton_original():
     texto = "ORIG"
@@ -43,7 +45,7 @@ def boton_original():
     print "Uso: ", paquete.size
     print "Empaquetado: ", binascii.hexlify(empaquetado)
     print "\n"
-    envio.send(empaquetado)
+    envio.sendto(empaquetado, ("localhost", 6699))
 
 def boton_promedio():
     texto = "PROM"
@@ -54,7 +56,7 @@ def boton_promedio():
     print "Uso: ", paquete.size
     print "Empaquetado: ", binascii.hexlify(empaquetado)
     print "\n"
-    envio.send(empaquetado)
+    envio.sendto(empaquetado, ("localhost", 6699))
 
 def boton_umbral():
     global valor_slider
@@ -68,7 +70,7 @@ def boton_umbral():
     print "Uso: ", paquete.size
     print "Empaquetado: ", binascii.hexlify(empaquetado)
     print "\n"
-    envio.send(empaquetado)
+    envio.sendto(empaquetado, ("localhost", 6699))
 
 def valores_slider(value):
     global valor_slider 
@@ -86,7 +88,7 @@ def boton_slider():
 def boton_salir():
     valores = ("EXIT")
     empaquetado = paquete.pack(valores)
-    envio.send(empaquetado)
+    envio.sendto(empaquetado, ("localhost", 6699))
     envio.close()
     root.destroy()
 
