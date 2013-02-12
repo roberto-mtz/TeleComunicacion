@@ -7,6 +7,7 @@ import socket
 import binascii
 import struct
 
+#Clase genera hilo cada que hay un nuevo cliente
 class Hilos(Thread):
     def __init__(self, socket2, direccion):
         Thread.__init__(self)
@@ -14,6 +15,7 @@ class Hilos(Thread):
         self.datos = direccion[0]   
         
     def run(self):
+        #corre el hilo y hace acciones de comandos que acepta
         while 1:
             msj, addr = self.socket2.recvfrom(4)
             comando = desempaqueto(msj)
@@ -33,6 +35,7 @@ class Hilos(Thread):
             print "Cliente IP no. " + self.datos + " cambia a " + str(comando[0])
 
 def desempaqueto(valores):
+    #Desempaqueto los struct con 4 bytes en cadena string
     print valores
     paquete = struct.Struct('4s')
     obtener_valores = paquete.unpack(valores)
@@ -44,6 +47,7 @@ def desempaqueto(valores):
     return obtener_valores
 
 def poner_imagen(image):
+    #pone imagen en ventana
     photo = ImageTk.PhotoImage(image)
     global label
     label = Label(image=photo)
@@ -51,7 +55,7 @@ def poner_imagen(image):
     label.pack()
 
 def cambiar_agrises(imagen):
-    #imagen = Image.open(path_imagen_original).convert("RGB")
+    #Cambia a grises
     pixeles = imagen.load()
     x, y = imagen.size
     
@@ -69,6 +73,7 @@ def cambiar_agrises(imagen):
     return imagen_nueva
 
 def cambiar_promedio(imagen):
+    #Hace efecto borrado
     pixeles = imagen.load()
     x, y = imagen.size
     imagen_nueva_prom = Image.new("RGB", (x, y))
@@ -117,6 +122,7 @@ def cambiar_promedio(imagen):
     return imagen_nueva_prom
 
 def cambiar_umbral(imagen, umbral_valor):
+    #Binariza segun umnbral
     pixeles = imagen.load()
     x, y = imagen.size
     imagen_nueva = Image.new("RGB", (x, y))
@@ -138,6 +144,8 @@ def cambiar_umbral(imagen, umbral_valor):
 def obtener_original(path_imagen_original):
     imagen = Image.open(path_imagen_original)
     return imagen
+
+#Acciones de comandos
 
 def accion_grises():
     label.destroy()
@@ -166,7 +174,6 @@ def main():
     socket1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     socket1.bind(("localhost", 6699))
     print "Haz iniciado satisfactoriamente el editor de imagenes colaborativo\nmuestro los mensajes."
-    #socket1.listen(1)
     clientes = []
     
     root = Tk()
